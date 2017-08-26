@@ -1,0 +1,90 @@
+html, body {
+  padding: 0px;
+  margin: 0px;
+  height: 100%;
+  width: 100%; }
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center; }
+
+#content {
+  height: 540px;
+  width: 960px;
+  background-image: url("../assets/background.jpg");
+  background-size: contain; }
+  #content .board {
+    height: 65%;
+    display: flex;
+    justify-content: space-between; }
+    #content .board .players {
+      display: inline-block;
+      height: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+      width: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around; }
+      #content .board .players .player {
+        height: 70px;
+        width: 110px;
+        background-color: #ffff99; }
+    #content .board .playable_area {
+      display: inline-block;
+      height: 100%;
+      width: calc(100% - 300px); }
+      #content .board .playable_area .public_area {
+        height: 50%;
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        align-items: center; }
+        #content .board .playable_area .public_area > div {
+          width: 230px;
+          height: 150px; }
+      #content .board .playable_area .personal_area {
+        height: 50%;
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        align-items: center; }
+        #content .board .playable_area .personal_area .my_fields {
+          width: 300px;
+          height: 150px; }
+      #content .board .playable_area .stack_area {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.2); }
+        #content .board .playable_area .stack_area .card_stack {
+          height: 105px;
+          width: 70px;
+          background-color: #666; }
+  #content .hand {
+    height: 35%;
+    display: flex;
+    align-items: center;
+    overflow-x: scroll;
+    background-color: rgba(0, 0, 0, 0.2); }
+    #content .hand .card {
+      height: 150px;
+      width: 100px;
+      background-color: #bbb;
+      margin: 0px 15px;
+      flex: 0 0 auto;
+      text-align: center;
+      font-size: 14px;
+      border-radius: 5px;
+      box-shadow: 0px 0px 5px; }
+      #content .hand .card .card_name {
+        height: 20px;
+        padding: 5px 0px; }
+      #content .hand .card .values {
+        display: flex;
+        justify-content: space-around; }
+        #content .hand .card .values > span {
+          display: inline-block; }
+
+/*# sourceMappingURL=tbg.css.map */
