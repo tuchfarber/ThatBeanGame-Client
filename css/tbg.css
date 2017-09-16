@@ -43,17 +43,23 @@ table {
   border-spacing: 0; }
 
 /* END CSS Reset */
+/* MIXINS */
 html, body {
   padding: 0px;
   margin: 0px;
   height: 100%;
-  width: 100%; }
+  width: 100%;
+  height: 480px;
+  width: 960px; }
 
 body {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-around;
   font-size: 14px; }
+
+.toolbar {
+  height: 30px; }
 
 #overlay {
   position: absolute;
@@ -64,8 +70,8 @@ body {
   transition-delay: 500ms;
   overflow: hidden;
   display: flex;
-  justify-content: center;
-  align-items: center; }
+  align-items: center;
+  justify-content: space-around; }
   #overlay > div {
     height: 500px;
     background-color: #eee;
@@ -100,24 +106,70 @@ body {
   height: 100%;
   width: 100%;
   background-image: url("../assets/background.jpg");
+  background-color: #eee;
   background-size: contain; }
+  #content .clickable {
+    border: 5px dotted #ffff00; }
   #content .board {
     height: 65%;
     display: flex;
     justify-content: space-between; }
     #content .board .players {
-      display: inline-block;
       height: 100%;
-      padding: 20px;
+      padding: 10px 20px;
       box-sizing: border-box;
       width: 150px;
       display: flex;
       flex-direction: column;
       justify-content: space-around; }
       #content .board .players .player {
-        height: 70px;
+        height: 90px;
         width: 110px;
-        background-color: #ffff99; }
+        box-shadow: 0px 0px 5px;
+        background-color: #ffff99;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around; }
+        #content .board .players .player .their_name {
+          padding-left: 10px; }
+        #content .board .players .player .their_fields {
+          display: flex;
+          justify-content: space-around; }
+          #content .board .players .player .their_fields .their_field {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            height: 30px;
+            width: 20px;
+            border: 1px solid black; }
+        #content .board .players .player .their_stats {
+          display: flex;
+          justify-content: space-around;
+          height: 20px; }
+          #content .board .players .player .their_stats .coin {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            height: 100%;
+            width: 20px;
+            background-color: #F2CF59;
+            border: 1px solid #D9AB07;
+            border-radius: 10px; }
+          #content .board .players .player .their_stats .hand {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            height: 100%;
+            width: 15px;
+            background-color: #ccc;
+            border: 1px solid black;
+            border-radius: 2px; }
+          #content .board .players .player .their_stats .host {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            height: 100%;
+            width: 20px; }
     #content .board .playable_area {
       display: inline-block;
       height: 100%;
@@ -126,48 +178,83 @@ body {
         height: 50%;
         width: 100%;
         display: flex;
-        justify-content: space-around;
-        align-items: center; }
+        justify-content: space-around; }
         #content .board .playable_area .public_area > div {
           width: 230px;
           height: 150px; }
+        #content .board .playable_area .public_area .deck_area .card_stack {
+          background-image: url("../assets/card_back.png"); }
       #content .board .playable_area .personal_area {
         height: 50%;
         width: 100%;
         display: flex;
-        justify-content: space-around;
-        align-items: center; }
+        align-items: center;
+        justify-content: space-around; }
         #content .board .playable_area .personal_area .my_fields {
           width: 300px;
           height: 150px; }
+        #content .board .playable_area .personal_area .game_stats {
+          width: 160px;
+          height: 150px;
+          background-color: rgba(0, 0, 0, 0.2); }
       #content .board .playable_area .stack_area {
         display: flex;
         justify-content: space-around;
         align-items: center;
         background-color: rgba(0, 0, 0, 0.2); }
         #content .board .playable_area .stack_area .card_stack {
+          background-color: #ddd;
+          border-radius: 5px;
+          box-shadow: 0px 0px 5px;
+          text-align: center;
           height: 105px;
-          width: 70px;
-          background-color: #666; }
+          width: 70px; }
+          #content .board .playable_area .stack_area .card_stack:hover {
+            cursor: pointer; }
+          #content .board .playable_area .stack_area .card_stack .name {
+            margin: 5px 0px; }
+          #content .board .playable_area .stack_area .card_stack .card_image {
+            height: 50px;
+            width: 70px; }
+          #content .board .playable_area .stack_area .card_stack .values {
+            display: flex;
+            justify-content: space-between;
+            height: 14px; }
+            #content .board .playable_area .stack_area .card_stack .values > span {
+              display: inline-block;
+              width: 17px;
+              font-size: 12px; }
+          #content .board .playable_area .stack_area .card_stack .coins {
+            width: 100%;
+            height: 14px; }
+          #content .board .playable_area .stack_area .card_stack .count {
+            color: #fff;
+            margin-top: 5px; }
   #content .hand {
     height: 35%;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     overflow-x: auto;
     background-color: rgba(0, 0, 0, 0.2); }
     #content .hand .card {
+      background-color: #ddd;
+      border-radius: 5px;
+      box-shadow: 0px 0px 5px;
       height: 150px;
       width: 100px;
-      background-color: #bbb;
       margin: 0px 15px;
       flex: 0 0 auto;
       text-align: center;
-      font-size: 14px;
-      border-radius: 5px;
-      box-shadow: 0px 0px 5px; }
+      font-size: 14px; }
+      #content .hand .card:hover {
+        cursor: pointer; }
       #content .hand .card .card_name {
         height: 20px;
         padding: 5px 0px; }
+      #content .hand .card .card_image {
+        height: 75px;
+        width: 100px; }
       #content .hand .card .values {
         display: flex;
         justify-content: space-around; }

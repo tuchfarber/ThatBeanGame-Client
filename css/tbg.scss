@@ -44,17 +44,35 @@ table {
 }
 /* END CSS Reset */
 
+/* MIXINS */
+@mixin flex_center{
+    display:flex;
+    align-items: center;
+    justify-content: space-around;
+}
+@mixin card_shape{
+    background-color:#ddd;
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px;
+}
+@mixin dark_backdrop{
+    background-color:rgba(0, 0, 0, 0.2);
+}
+
 html, body{
     padding:0px;
     margin:0px;
     height:100%;
     width:100%;
+    height:480px;
+    width:960px;
 }
 body{
-    display:flex;
-    align-items: center;
-    justify-content: center;
+    @include flex_center;
     font-size:14px;
+}
+.toolbar{
+    height:30px;
 }
 #overlay{
     position: absolute;
@@ -64,9 +82,7 @@ body{
     transition: height 500ms ease;
     transition-delay: 500ms;
     overflow:hidden;
-    display:flex;
-    justify-content: center;
-    align-items: center;
+    @include flex_center;
     &>div{
         height:500px;
         background-color: #eee;
@@ -107,25 +123,71 @@ body{
     height:100%;
     width:100%;
     background-image: url('../assets/background.jpg');
+    background-color: #eee;
     background-size: contain;
-
+    .clickable{
+        border: 5px dotted #ffff00;
+    }
     .board{
         height:65%;
         display:flex;
         justify-content:space-between;
+
         .players{
-            display:inline-block;
             height:100%;
-            padding:20px;
+            padding:10px 20px;
             box-sizing:border-box;
             width:150px;
             display:flex;
             flex-direction: column;
             justify-content: space-around;
             .player{
-                height:70px;
+                height:90px;
                 width:110px;
+                box-shadow: 0px 0px 5px;
                 background-color:#ffff99;
+                display:flex;
+                flex-direction: column;
+                justify-content: space-around;
+                .their_name{
+                    padding-left:10px;
+                }
+                .their_fields{
+                    display:flex;
+                    justify-content:space-around;
+                    .their_field{
+                        @include flex_center;
+                        height:30px;
+                        width:20px;
+                        border: 1px solid black;
+                    }
+                }
+                .their_stats{
+                    display:flex;
+                    justify-content:space-around;
+                    height:20px;
+                    .coin{
+                        @include flex_center;
+                        height:100%;
+                        width:20px;
+                        background-color:#F2CF59;
+                        border:1px solid #D9AB07;
+                        border-radius: 10px;
+                    }
+                    .hand{
+                        @include flex_center;
+                        height:100%;
+                        width:15px;
+                        background-color:#ccc;
+                        border:1px solid black;
+                        border-radius: 2px;
+                    }
+                    .host{
+                        @include flex_center;
+                        height:100%;
+                        width:20px;
+                    }
+                }
             }
         }
         .playable_area{
@@ -137,32 +199,68 @@ body{
                 width:100%;
                 display:flex;
                 justify-content: space-around;
-                align-items: center;
                 &>div{
                     width: 230px;
                     height: 150px;
+                }
+                .deck_area{
+                    .card_stack{
+                        background-image: url('../assets/card_back.png');
+                    }
                 }
             }
             .personal_area{
                 height:50%;
                 width:100%;
-                display:flex;
-                justify-content: space-around;
-                align-items: center;
+                @include flex_center;
                 .my_fields{
                     width: 300px;
                     height: 150px;
+                }
+                .game_stats{
+                    width: 160px;
+                    height: 150px;
+                    @include dark_backdrop();
                 }
             }
             .stack_area{
                 display:flex;
                 justify-content: space-around;
-                align-items: center;
-                background-color:rgba(0, 0, 0, 0.2);
+                align-items:center;
+                @include dark_backdrop();
                 .card_stack{
+                    @include card_shape;
+                    text-align: center;
+                    &:hover{
+                        cursor:pointer;
+                    }
                     height:105px;
                     width:70px;
-                    background-color:#666;
+                    .name{
+                        margin: 5px 0px;
+                    }
+                    .card_image{
+                        height:50px;
+                        width:70px;
+                    }
+                    .values{
+                        display:flex;
+                        justify-content: space-between;
+                        &>span{
+                            display:inline-block;
+                            width:17px;
+                            font-size:12px;
+                        }
+                        height:14px;
+                    }
+                    .coins{
+                        width:100%;
+                        height:14px;
+                    }
+                    .count{
+                        color:#fff;
+                        margin-top:5px;
+                    }
                 }
             }
         }
@@ -170,22 +268,28 @@ body{
     .hand{
         height:35%;
         display:flex;
-        align-items:center;
+        align-items: center;
+        justify-content: space-between;
         overflow-x: auto;
-        background-color:rgba(0, 0, 0, 0.2);
+        @include dark_backdrop();
         .card{
+            @include card_shape;
+            &:hover{
+                cursor:pointer;
+            }
             height:150px;
             width:100px;
-            background-color:#bbb;
             margin: 0px 15px;
             flex:0 0 auto;
             text-align: center;
             font-size:14px;
-            border-radius: 5px;
-            box-shadow: 0px 0px 5px;
             .card_name{
                 height:20px;
                 padding:5px 0px;
+            }
+            .card_image{
+                height: 75px;
+                width: 100px;
             }
             .values{
                 display:flex;
