@@ -24,8 +24,48 @@ let game = new Vue({
             trades: [],
             game_id: "",
         },
+        incoming_data: {},
         selected_card: '',
-        selected_location: ''
+        selected_location: '',
+        trade_selection_on: false,
+        trade_selection_cards: []
+    },
+    computed:{
+        clickable_objects: function (){
+            objects = []
+            if (this.game_state.current_player != this.player_state.name){return []}
+            if (this.selected_card == '' && ['First Card', 'Second Card'].includes(this.game_state.stage)){
+                objects.push('hand')
+            }
+            if (this.selected_card != ''){
+                objects.push('field')
+            }
+            if (
+                this.selected_card == '' && this.game_state.stage=='Post Market Flip'
+                && this.game_state.market.length != 0
+            ){
+                objects.push('market')
+            }
+            if (
+                ['Second Card','Pre Market Flip'].includes(this.game_state.stage)
+                || (this.game_state.stage == 'Post Market Flip' && this.game_state.market.length==0)
+            ){
+                objects.push('deck')
+            }
+            return objects
+        },
+        prettyPlaythrough: function(){
+            prettied = ['1st','2nd','3rd']
+            return prettied[this.game_state.playthrough]
+        },
+        host: function(){
+            host = '';
+            if(this.player_state.is_host){host = this.player_state.name}
+            this.game_state.players.forEach(function(player){
+                if(player.is_host){host = player.name}
+            })
+            return host;
+        }
     },
     methods:{
         checkAccess: function(){
@@ -67,7 +107,7 @@ let game = new Vue({
                 setInterval(() => {this.update()}, 5000)
             })
             .catch(error => {
-                console.log(error)
+                console.log(error.response.data.error)
             });
         },
         joinGame: function(){
@@ -86,7 +126,7 @@ let game = new Vue({
                 setInterval(() => {this.update()}, 5000)
             })
             .catch(error => {
-                console.log(error)
+                console.log(error.response.data.error)
             });
         },
         startGame: function(){
@@ -103,7 +143,7 @@ let game = new Vue({
                 this.update();
             })
             .catch(error => {
-                console.log(error)
+                console.log(error.response.data.error)
             });
         },
         update: function(){
@@ -113,11 +153,8 @@ let game = new Vue({
                 withCredentials: true
             })
             .then(response => {
-                all_data = response.data;
-                Object.keys(this.game_state).forEach((key) => {
-                    this.game_state[key] = all_data[key];
-                })
-                this.player_state = all_data.player_info
+                this.incoming_data = response.data;
+                this.updateData(this.incoming_data)
             })
             .catch(error => {
                 console.log("Failed to retrieve  or extract game data")
@@ -150,7 +187,7 @@ let game = new Vue({
                 this.update();
             })
             .catch(error => {
-                console.log(error)
+                console.log(error.response.data.error)
             });
         },
         playCardFromMarket: function(card_id, field){
@@ -184,7 +221,7 @@ let game = new Vue({
                 this.update();
             })
             .catch(error => {
-                console.log(error)
+                console.log(error.response.data.error)
             });
         },
         drawCardsToMarket: function(){
@@ -197,7 +234,7 @@ let game = new Vue({
                 this.update();
             })
             .catch(error => {
-                console.log(error)
+                console.log(error.response.data.error)
             });
         },
         drawCardsToHand: function(){
@@ -210,7 +247,7 @@ let game = new Vue({
                 this.update();
             })
             .catch(error => {
-                console.log(error)
+                console.log(error.response.data.error)
             });
         },
         createTrade: function(ids, other_players, wants){
@@ -228,7 +265,21 @@ let game = new Vue({
                 this.update();
             })
             .catch(error => {
-                console.log(error)
+                console.log(error.response.data.error)
+            });
+        },
+        buyThirdField: function(){
+            axios({
+                method: 'post',
+                url: this.base_url + '/api/game/' + this.game_state.game_id + '/buy',
+                data: {},
+                withCredentials: true
+            })
+            .then(response => {
+                this.update();
+            })
+            .catch(error => {
+                console.log(error.response.data.error)
             });
         },
         acceptTrade: function(trade_id, card_ids){
@@ -245,10 +296,15 @@ let game = new Vue({
                 this.update();
             })
             .catch(error => {
-                console.log(error)
+                console.log(error.response.data.error)
             });
         },
         selectCard: function(location, card){
+            if(this.trade_selection_on == true){
+                this.trade_selection_cards.push(card.id)
+                return
+            }
+
             if(location=='hand'){
                 this.selected_card = card.id;
                 this.selected_location = 'hand';
@@ -257,13 +313,17 @@ let game = new Vue({
                 this.selected_location = 'market';
             }
         },
+        submitTrade: function(){
+            continue
+        },
         addSelectedCardToField: function(field){
-            if(game.game_state.status != 'Running'){return}
+            if(this.game_state.status != 'Running'){return}
             if(this.selected_location=='hand' && ['First Card', 'Second Card'].includes(this.game_state.stage)){
                 this.playCardFromHand(field);
             }else if(this.selected_location=='market' && this.game_state.stage =='Post Market Flip'){
                 this.playCardFromMarket(this.selected_card, field)
             }
+            this.selected_card = ''
             this.update();
         },
         useDeck: function(){
@@ -274,15 +334,22 @@ let game = new Vue({
                 this.drawCardsToHand()
             }
         },
+        updateData: function(new_data){
+            Object.keys(this.game_state).forEach((key) => {
+                this.game_state[key] = new_data[key];
+            })
+            this.player_state = new_data.player_info
+        },
         exitGame: function(){
             document.cookie = "tbg_token=; expires=" + +new Date() + "; domain=" + window.location.hostname + "; path=/";
             location.reload();
         },
-        isClickable: function(location){
-            if(location == 'hand' && ['First Card', 'Second Card'].includes(this.game_state.stage)){return 'clickable'}
-            if(location == 'market' && this.game_state.stage=='Post Market Flip'){return 'clickable'}
-            if(location == 'field' && ['First Card', 'Second Card', 'Post Market Flip'].includes(this.game_state.stage)){return 'clickable'}
-            if(location == 'deck' && ['Second Card','Pre Market Flip', 'Post Market Flip'].includes(this.game_state.stage)){return 'clickable'}
+        isClickable: function(location, param){
+            if (location == 'hand' && param != 0){return ''}
+            if (location == 'field' && param == false){return ''}
+            if (this.clickable_objects.includes(location)){
+                return 'clickable';
+            }
             return ''
         },
         hideLogin: function(){document.querySelector("#overlay").style.height=0}

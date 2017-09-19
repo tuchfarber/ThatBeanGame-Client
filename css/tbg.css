@@ -58,9 +58,6 @@ body {
   justify-content: space-around;
   font-size: 14px; }
 
-.toolbar {
-  height: 30px; }
-
 #overlay {
   position: absolute;
   height: 100%;
@@ -110,8 +107,22 @@ body {
   background-size: contain; }
   #content .clickable {
     border: 5px dotted #ffff00; }
+  #content .infobar {
+    height: 30px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgba(0, 0, 0, 0.2);
+    margin-bottom: 5px;
+    color: #fff;
+    font-weight: bold; }
+    #content .infobar .gameid {
+      padding-left: 20px; }
+    #content .infobar .name {
+      padding-right: 20px; }
   #content .board {
-    height: 65%;
+    height: calc(65% - 35px);
     display: flex;
     justify-content: space-between; }
     #content .board .players {
@@ -123,7 +134,7 @@ body {
       flex-direction: column;
       justify-content: space-around; }
       #content .board .players .player {
-        height: 90px;
+        height: 80px;
         width: 110px;
         box-shadow: 0px 0px 5px;
         background-color: #ffff99;
@@ -139,8 +150,8 @@ body {
             display: flex;
             align-items: center;
             justify-content: space-around;
-            height: 30px;
-            width: 20px;
+            height: 25px;
+            width: 15px;
             border: 1px solid black; }
         #content .board .players .player .their_stats {
           display: flex;
@@ -171,19 +182,37 @@ body {
             height: 100%;
             width: 20px; }
     #content .board .playable_area {
-      display: inline-block;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
       height: 100%;
       width: calc(100% - 300px); }
       #content .board .playable_area .public_area {
         height: 50%;
         width: 100%;
         display: flex;
-        justify-content: space-around; }
+        justify-content: space-around;
+        align-items: center; }
         #content .board .playable_area .public_area > div {
           width: 230px;
-          height: 150px; }
-        #content .board .playable_area .public_area .deck_area .card_stack {
-          background-image: url("../assets/card_back.png"); }
+          height: 130px; }
+        #content .board .playable_area .public_area .deck_area .deck {
+          background-image: url("../assets/card_back.png");
+          display: flex;
+          align-items: center;
+          justify-content: space-around;
+          flex-direction: column; }
+          #content .board .playable_area .public_area .deck_area .deck span {
+            font-weight: bold;
+            font-size: 18px; }
+        #content .board .playable_area .public_area .deck_area .discard {
+          background-image: url("../assets/discard.png");
+          background-color: #ddd;
+          border-radius: 5px;
+          box-shadow: 0px 0px 5px;
+          display: flex;
+          align-items: center;
+          justify-content: space-around; }
       #content .board .playable_area .personal_area {
         height: 50%;
         width: 100%;
@@ -192,16 +221,21 @@ body {
         justify-content: space-around; }
         #content .board .playable_area .personal_area .my_fields {
           width: 300px;
-          height: 150px; }
+          height: 120px; }
         #content .board .playable_area .personal_area .game_stats {
+          color: #ddd;
           width: 160px;
-          height: 150px;
-          background-color: rgba(0, 0, 0, 0.2); }
+          height: 120px;
+          background-color: rgba(0, 0, 0, 0.2);
+          display: flex;
+          align-items: center;
+          justify-content: space-around; }
       #content .board .playable_area .stack_area {
         display: flex;
         justify-content: space-around;
         align-items: center;
-        background-color: rgba(0, 0, 0, 0.2); }
+        background-color: rgba(0, 0, 0, 0.2);
+        font-size: 12px; }
         #content .board .playable_area .stack_area .card_stack {
           background-color: #ddd;
           border-radius: 5px;
@@ -234,7 +268,7 @@ body {
     height: 35%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     overflow-x: auto;
     background-color: rgba(0, 0, 0, 0.2); }
     #content .hand .card {

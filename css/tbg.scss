@@ -71,9 +71,6 @@ body{
     @include flex_center;
     font-size:14px;
 }
-.toolbar{
-    height:30px;
-}
 #overlay{
     position: absolute;
     height:100%;
@@ -128,8 +125,26 @@ body{
     .clickable{
         border: 5px dotted #ffff00;
     }
+    .infobar{
+        height:30px;
+        display:flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        @include dark_backdrop;
+        margin-bottom:5px;
+        color:#fff;
+        font-weight: bold;
+        .gameid{
+
+            padding-left:20px;
+        }
+        .name{
+            padding-right:20px;
+        }
+    }
     .board{
-        height:65%;
+        height:calc(65% - 35px);
         display:flex;
         justify-content:space-between;
 
@@ -142,7 +157,7 @@ body{
             flex-direction: column;
             justify-content: space-around;
             .player{
-                height:90px;
+                height:80px;
                 width:110px;
                 box-shadow: 0px 0px 5px;
                 background-color:#ffff99;
@@ -157,8 +172,8 @@ body{
                     justify-content:space-around;
                     .their_field{
                         @include flex_center;
-                        height:30px;
-                        width:20px;
+                        height:25px;
+                        width:15px;
                         border: 1px solid black;
                     }
                 }
@@ -191,7 +206,9 @@ body{
             }
         }
         .playable_area{
-            display:inline-block;
+            display:flex;
+            flex-direction: column;
+            justify-content: space-around;
             height:100%;
             width:calc(100% - 300px);
             .public_area{
@@ -199,13 +216,28 @@ body{
                 width:100%;
                 display:flex;
                 justify-content: space-around;
+                align-items: center;
                 &>div{
                     width: 230px;
-                    height: 150px;
+                    height: 130px;
                 }
                 .deck_area{
-                    .card_stack{
+                    .deck{
                         background-image: url('../assets/card_back.png');
+                        span{
+                            font-weight: bold;
+                            font-size:18px;
+                        }
+                        @include flex_center;
+                        flex-direction: column;
+                    }
+                    .discard{
+                        background-image: url('../assets/discard.png');
+                        @include card_shape;
+                        @include flex_center;
+
+                    }
+                    .card_stack{
                     }
                 }
             }
@@ -215,12 +247,14 @@ body{
                 @include flex_center;
                 .my_fields{
                     width: 300px;
-                    height: 150px;
+                    height: 120px;
                 }
                 .game_stats{
+                    color:#ddd;
                     width: 160px;
-                    height: 150px;
-                    @include dark_backdrop();
+                    height: 120px;
+                    @include dark_backdrop;
+                    @include flex_center;
                 }
             }
             .stack_area{
@@ -228,6 +262,7 @@ body{
                 justify-content: space-around;
                 align-items:center;
                 @include dark_backdrop();
+                font-size:12px;
                 .card_stack{
                     @include card_shape;
                     text-align: center;
@@ -269,7 +304,7 @@ body{
         height:35%;
         display:flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: flex-start;
         overflow-x: auto;
         @include dark_backdrop();
         .card{
