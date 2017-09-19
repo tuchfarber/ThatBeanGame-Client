@@ -33,6 +33,7 @@ let game = new Vue({
     computed:{
         clickable_objects: function (){
             objects = []
+            if (this.trade_selection_on == true){return ['hand', 'market']}
             if (this.game_state.current_player != this.player_state.name){return []}
             if (this.selected_card == '' && ['First Card', 'Second Card'].includes(this.game_state.stage)){
                 objects.push('hand')
@@ -314,7 +315,7 @@ let game = new Vue({
             }
         },
         submitTrade: function(){
-            continue
+            return
         },
         addSelectedCardToField: function(field){
             if(this.game_state.status != 'Running'){return}
@@ -345,12 +346,15 @@ let game = new Vue({
             location.reload();
         },
         isClickable: function(location, param){
-            if (location == 'hand' && param != 0){return ''}
+            if (location == 'hand' && this.trade_selection_on == false && param != 0){return ''}
             if (location == 'field' && param == false){return ''}
             if (this.clickable_objects.includes(location)){
                 return 'clickable';
             }
             return ''
+        },
+        enableTradeSelection: function(flag){
+            this.trade_selection_on = flag;
         },
         hideLogin: function(){document.querySelector("#overlay").style.height=0}
 

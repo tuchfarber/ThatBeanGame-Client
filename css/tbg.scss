@@ -254,7 +254,9 @@ body{
                     width: 160px;
                     height: 120px;
                     @include dark_backdrop;
-                    @include flex_center;
+                    button{
+                        width:100%;
+                    }
                 }
             }
             .stack_area{

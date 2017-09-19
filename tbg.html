@@ -98,13 +98,9 @@
                             </div>
                         </div>
                         <div class="game_stats">
-                            <div v-if="game_state.status == 'Awaiting'">
-                                <button v-if="game.host == player_state.name">Start Game</button>
-                                <div v-else>Awaiting {{game.host}}...</div>
-                            </div>
-                            <button v-if="!trade_selection" v-on:click="trade_selection_on = true">Create Trade</button>
-                            <button v-if="trade_selection" v-onclick="submitTrade">Submit Trade</button>
-                            <button v-if="trade_selection" v-onclick="trade_selection_on = false">Cancel Trade</button>
+                            <button v-if="!trade_selection_on" v-on:click="enableTradeSelection(true)">Create Trade</button>
+                            <button v-if="trade_selection_on" v-on:click="submitTrade()">Submit Trade</button>
+                            <button v-if="trade_selection_on" v-on:click="enableTradeSelection(false)">Cancel Trade</button>
                         </div>
                     </div>
                 </div>

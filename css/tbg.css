@@ -226,10 +226,9 @@ body {
           color: #ddd;
           width: 160px;
           height: 120px;
-          background-color: rgba(0, 0, 0, 0.2);
-          display: flex;
-          align-items: center;
-          justify-content: space-around; }
+          background-color: rgba(0, 0, 0, 0.2); }
+          #content .board .playable_area .personal_area .game_stats button {
+            width: 100%; }
       #content .board .playable_area .stack_area {
         display: flex;
         justify-content: space-around;
