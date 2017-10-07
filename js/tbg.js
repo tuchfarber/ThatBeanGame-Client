@@ -2,15 +2,7 @@ let game = new Vue({
     el: "#content",
     data: {
         base_url: location.protocol + '//' + window.location.hostname + ':8080',
-        player_state: {
-            coins: 0, 
-            fields: [], 
-            hand: [], 
-            hand_count: 0, 
-            is_host: null, 
-            name: "", 
-            pending_cards: []
-        },
+        current_trade_id: '',
         game_state: {
             game_type: "public",
             current_player: "", 
@@ -25,11 +17,20 @@ let game = new Vue({
             game_id: "",
         },
         incoming_data: {},
+        player_state: {
+            coins: 0, 
+            fields: [], 
+            hand: [], 
+            hand_count: 0, 
+            is_host: null, 
+            name: "", 
+            pending_cards: []
+        },
         selected_card: '',
         selected_location: '',
-        trade_stage: 0,
-        current_trade_id: '',
+        socket: null,
         trade_selection_cards: [],
+        trade_stage: 0,
         trade_wants: [null, null, null, null, null],
         trade_want_options:[
             "Cocoa Bean",
@@ -96,9 +97,9 @@ let game = new Vue({
             .then(response => {
                 this.game_state.game_id = response.data.game;
                 this.player_state.name = response.data.player_name;
-                this.update();
+                // Pass;
                 this.hideLogin();
-                //setInterval(() => {this.update()}, 5000)
+                this.connectSocket()
             })
             .catch(error => {
                 console.log("Could not login with cookie")
@@ -121,9 +122,9 @@ let game = new Vue({
             .then(response => {
                 console.log(response);
                 this.game_state.game_id = response.data.game;
-                this.update();
+                // Pass;
                 this.hideLogin();
-                setInterval(() => {this.update()}, 5000)
+                this.connectSocket()
             })
             .catch(error => {
                 console.log(error.response.data.error)
@@ -140,9 +141,9 @@ let game = new Vue({
                 withCredentials: true
             })
             .then(response => {
-                this.update();
+                // Pass;
                 this.hideLogin();
-                setInterval(() => {this.update()}, 5000)
+                this.connectSocket()
             })
             .catch(error => {
                 console.log(error.response.data.error)
@@ -159,39 +160,11 @@ let game = new Vue({
                 withCredentials: true
             })
             .then(response => {
-                this.update();
+                // Pass
             })
             .catch(error => {
                 console.log(error.response.data.error)
             });
-        },
-        update: function(){
-            axios({
-                method: 'get',
-                url: this.base_url + '/api/game/' + this.game_state.game_id,
-                withCredentials: true
-            })
-            .then(response => {
-                this.incoming_data = response.data;
-                this.updateData(this.incoming_data)
-            })
-            .catch(error => {
-                console.log("Failed to retrieve  or extract game data")
-            });
-            switch(this.game_state.stage){
-                case "First Card":
-                    this.usable_locations = ['hand', 'field'];
-                    break;
-                case "Second Card":
-                    this.usable_locations = ['hand', 'deck'];
-                    break;
-                case "Pre Market Flip":
-                    this.usable_locations = ['deck']
-                    break;
-                case "Post Market Flip":
-                    this.usable_locations = ['market', 'trade',]
-
-            }
         },
         playCardFromHand: function(field){
             axios({
@@ -203,7 +176,7 @@ let game = new Vue({
                 withCredentials: true
             })
             .then(response => {
-                this.update();
+                // Pass
             })
             .catch(error => {
                 console.log(error.response.data.error)
@@ -220,7 +193,7 @@ let game = new Vue({
                 withCredentials: true
             })
             .then(response => {
-                this.update();
+                // Pass
             })
             .catch(error => {
                 console.log(error.response.data.error)
@@ -237,7 +210,7 @@ let game = new Vue({
                 withCredentials: true
             })
             .then(response => {
-                this.update();
+                // Pass
             })
             .catch(error => {
                 console.log(error.response.data.error)
@@ -250,7 +223,7 @@ let game = new Vue({
                 withCredentials: true
             })
             .then(response => {
-                this.update();
+                // Pass
             })
             .catch(error => {
                 console.log(error.response.data.error)
@@ -263,7 +236,7 @@ let game = new Vue({
                 withCredentials: true
             })
             .then(response => {
-                this.update();
+                // Pass
             })
             .catch(error => {
                 console.log(error.response.data.error)
@@ -277,7 +250,7 @@ let game = new Vue({
                 withCredentials: true
             })
             .then(response => {
-                this.update();
+                // Pass
             })
             .catch(error => {
                 console.log(error.response.data.error)
@@ -327,7 +300,7 @@ let game = new Vue({
             })
             .then(response => {
                 this.cancelTrade()
-                this.update();
+                // Pass
             })
             .catch(error => {
                 console.log(error.response.data.error)
@@ -347,7 +320,7 @@ let game = new Vue({
                 withCredentials: true
             })
             .then(response => {
-                this.update();
+                // Pass;
             })
             .catch(error => {
                 console.log(error.response.data.error)
@@ -359,11 +332,11 @@ let game = new Vue({
                 this.playCardFromHand(field);
             }else if(this.selected_location=='market' && this.game_state.stage =='Post Market Flip'){
                 this.playCardFromMarket(this.selected_card, field)
-            }else if(this.player_state.pending_cards){
+            }else if(this.is_pending){
                 this.playCardFromPending(field)
             }
             this.selected_card = ''
-            this.update();
+            // Pass;
         },
         useDeck: function(){
             if(game.game_state.status != 'Running'){return}
@@ -372,12 +345,6 @@ let game = new Vue({
             }else if(this.game_state.stage == 'Post Market Flip'){
                 this.drawCardsToHand()
             }
-        },
-        updateData: function(new_data){
-            Object.keys(this.game_state).forEach((key) => {
-                this.game_state[key] = new_data[key];
-            })
-            this.player_state = new_data.player_info
         },
         exitGame: function(){
             document.cookie = "tbg_token=; expires=" + +new Date() + "; domain=" + window.location.hostname + "; path=/";
@@ -408,6 +375,48 @@ let game = new Vue({
         },
         continueTrade: function(){
             this.trade_stage = 2;
+        },
+        fullSocketUpdate: function(data){
+            this.incoming_data = JSON.parse(data);
+            this.updateState()
+        },
+        partialSocketUpdate: function(data){
+            parsed_update = JSON.parse(data);
+            this.incoming_data = jsonpatch.applyPatch(this.incoming_data, parsed_update).newDocument;
+            this.updateState()
+        },
+        updateState: function(){
+            Object.keys(this.game_state).forEach((key) => {
+                this.game_state[key] = this.incoming_data[key];
+            })
+            this.player_state = this.incoming_data.player_info
+        },
+        connectSocket: function(){
+            if(!this.socket || !this.socket.connected){
+                this.socket = io.connect(this.base_url);
+            }
+            token = ""
+            document.cookie.split(';').forEach(
+                function(cookie){
+                    if(cookie.split('=')[0]=='tbg_token'){
+                        token = cookie.split('=')[1];
+                    }
+                }
+            )
+            this.socket.on('error', function (data) {
+                console.log(data);
+            })
+            this.socket.on('client full', (data) => {
+                this.fullSocketUpdate(data)
+            })
+            this.socket.on('client update', (data) => {
+                this.partialSocketUpdate(data)
+            })
+            this.socket.emit('login', {
+                game: this.game_state.game_id,
+                token: token
+            })
+
         },
         hideLogin: function(){document.querySelector("#overlay").style.height=0}
     },
