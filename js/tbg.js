@@ -336,7 +336,6 @@ let game = new Vue({
                 this.playCardFromPending(field)
             }
             this.selected_card = ''
-            // Pass;
         },
         useDeck: function(){
             if(game.game_state.status != 'Running'){return}
@@ -347,7 +346,18 @@ let game = new Vue({
             }
         },
         exitGame: function(){
-            document.cookie = "tbg_token=; expires=" + +new Date() + '; domain=""';
+            axios({
+                method: 'post',
+                url: this.base_url + '/api/game/' + this.game_state.game_id + '/leave',
+                data: {},
+                withCredentials: true
+            })
+            .then(response => {
+                // Pass
+            })
+            .catch(error => {
+                console.log(error.response.data.error)
+            });
             location.reload();
         },
         isClickable: function(location, param){

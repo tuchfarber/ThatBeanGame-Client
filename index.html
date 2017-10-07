@@ -65,7 +65,7 @@
                 <span>{{game_state.current_player}}'s turn</span>
                 <span class="name">{{player_state.name}} ({{player_state.coins}})</span>
             </div>
-            <div class="board">
+            <div class="board" v-if="game_state.status=='Running'">
                 <div class="players">
                     <div class="player" v-for="player in game_state.players.slice(0,3)">
                         <div class="info">
@@ -186,7 +186,7 @@
                     </div>
                 </div>
             </div>
-            <div class="hand">
+            <div class="hand" v-if="game_state.status=='Running'">
                 <div>
                     <template v-if="!player_state.pending_cards.length">
                         <div class="card" 
@@ -210,6 +210,12 @@
                             <div class="values"><span v-for="value in card.values">{{value}}</span></div>
                         </div>
                     </template>
+                </div>
+            </div>
+            <div class="endgame" v-if="game_state.status=='Completed'">
+                <div>
+                    <div>The game has ended and the winner is...</div>
+                    <div>{{game_state.winner}}!</div>
                 </div>
             </div>
         </div>

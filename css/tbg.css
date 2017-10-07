@@ -373,5 +373,21 @@ body {
           #content .hand > div .card .values > span {
             display: inline-block;
             width: 20px; }
+  #content .endgame {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: 100%; }
+    #content .endgame div {
+      background-color: #ccc;
+      border-radius: 10%; }
+    #content .endgame div > div:nth-child(1) {
+      font-size: 18px;
+      padding: 50px; }
+    #content .endgame div > div:nth-child(2) {
+      font-size: 24px;
+      color: #ff0000;
+      text-align: center;
+      padding: 0px 50px 50px 50px; }
 
 /*# sourceMappingURL=tbg.css.map */

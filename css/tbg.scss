@@ -438,6 +438,24 @@ body{
         }
 
     }
+    .endgame{
+        @include flex_center;
+        height:100%;
+        div{
+            background-color: #ccc;
+            border-radius: 10%;
+        }
+        div>div:nth-child(1){
+            font-size:18px;
+            padding:50px;
+        }
+        div>div:nth-child(2){
+            font-size:24px;
+            color: #ff0000;
+            text-align: center;
+            padding: 0px 50px 50px 50px
+        }
+    }
 }
 
 
