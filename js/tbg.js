@@ -347,7 +347,7 @@ let game = new Vue({
             }
         },
         exitGame: function(){
-            document.cookie = "tbg_token=; expires=" + +new Date() + "; domain=" + window.location.hostname + "; path=/";
+            document.cookie = "tbg_token=; expires=" + +new Date() + '; domain=""';
             location.reload();
         },
         isClickable: function(location, param){
