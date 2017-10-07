@@ -1,7 +1,7 @@
 let game = new Vue({
     el: "#content",
     data: {
-        base_url: location.protocol + '//' + window.location.hostname + ':8080',
+        base_url: location.protocol + '//' + window.location.hostname,
         current_trade_id: '',
         game_state: {
             game_type: "public",
