@@ -27,13 +27,28 @@ let game = new Vue({
         incoming_data: {},
         selected_card: '',
         selected_location: '',
-        trade_selection_on: false,
-        trade_selection_cards: []
+        trade_stage: 0,
+        current_trade_id: '',
+        trade_selection_cards: [],
+        trade_wants: [null, null, null, null, null],
+        trade_want_options:[
+            "Cocoa Bean",
+            "Garden Bean", 
+            "Red Bean", 
+            "Black Bean",
+            "Soy Bean",
+            "Green Bean",
+            "Stink Bean",
+            "Chili Bean",
+            "Blue Bean",
+            "Wax Bean",
+            "Coffee Bean"
+        ]
     },
     computed:{
         clickable_objects: function (){
             objects = []
-            if (this.trade_selection_on == true){return ['hand', 'market']}
+            if (this.trade_stage == 2){return ['hand', 'market']}
             if (this.game_state.current_player != this.player_state.name){return []}
             if (this.selected_card == '' && ['First Card', 'Second Card'].includes(this.game_state.stage)){
                 objects.push('hand')
@@ -66,6 +81,9 @@ let game = new Vue({
                 if(player.is_host){host = player.name}
             })
             return host;
+        },
+        is_pending: function(){
+            return this.player_state.pending_cards.length == 0;
         }
     },
     methods:{
@@ -208,13 +226,13 @@ let game = new Vue({
                 console.log(error.response.data.error)
             });
         },
-        playCardFromPending: function(card_id, field){
+        playCardFromPending: function(field){
             axios({
                 method: 'post',
                 url: this.base_url + '/api/game/' + this.game_state.game_id + '/play/pending',
                 data: {
                     "field_index": field,
-                    "card_id": card_id
+                    "card_id": this.selected_card
                 },
                 withCredentials: true
             })
@@ -251,24 +269,6 @@ let game = new Vue({
                 console.log(error.response.data.error)
             });
         },
-        createTrade: function(ids, other_players, wants){
-            axios({
-                method: 'post',
-                url: this.base_url + '/api/game/' + this.game_state.game_id + '/trade/create',
-                data: {
-                    "card_ids":ids,
-                    "other_player":other_players,
-                    "wants":wants
-                },
-                withCredentials: true
-            })
-            .then(response => {
-                this.update();
-            })
-            .catch(error => {
-                console.log(error.response.data.error)
-            });
-        },
         buyThirdField: function(){
             axios({
                 method: 'post',
@@ -283,25 +283,12 @@ let game = new Vue({
                 console.log(error.response.data.error)
             });
         },
-        acceptTrade: function(trade_id, card_ids){
-            axios({
-                method: 'post',
-                url: this.base_url + '/api/game/' + this.game_state.game_id + '/trade/accept',
-                data: {
-                    "trade_id":trade_id,
-                    "card_ids":card_ids
-                },
-                withCredentials: true
-            })
-            .then(response => {
-                this.update();
-            })
-            .catch(error => {
-                console.log(error.response.data.error)
-            });
+        acceptTrade: function(trade_id){
+            this.current_trade_id = trade_id;
+            this.trade_stage = 2;
         },
         selectCard: function(location, card){
-            if(this.trade_selection_on == true){
+            if(this.trade_stage == 2 && !this.trade_selection_cards.includes(card.id)){
                 this.trade_selection_cards.push(card.id)
                 return
             }
@@ -315,7 +302,56 @@ let game = new Vue({
             }
         },
         submitTrade: function(){
-            return
+            filtered_trade_wants = this.trade_wants.filter(function(card_name){
+                return card_name != null
+            })
+            if(this.current_trade_id){
+                url = this.base_url + '/api/game/' + this.game_state.game_id + '/trade/accept';
+                data = {
+                    "card_ids":this.trade_selection_cards,
+                    "trade_id":this.current_trade_id
+                }
+            }else{
+                url = this.base_url + '/api/game/' + this.game_state.game_id + '/trade/create';
+                data = {
+                    "wants": filtered_trade_wants,
+                    "card_ids":this.trade_selection_cards,
+                    "other_player":this.trade_player
+                }
+            }
+            axios({
+                method: 'post',
+                url: url,
+                data: data,
+                withCredentials: true
+            })
+            .then(response => {
+                this.cancelTrade()
+                this.update();
+            })
+            .catch(error => {
+                console.log(error.response.data.error)
+            });
+        },
+        createTrade: function(other_player){
+            this.trade_stage = 1;
+            this.trade_player = other_player;
+        },
+        rejectTrade: function(trade_id){
+            axios({
+                method: 'post',
+                url: this.base_url + '/api/game/' + this.game_state.game_id + '/trade/reject',
+                data: {
+                    "trade_id": trade_id
+                },
+                withCredentials: true
+            })
+            .then(response => {
+                this.update();
+            })
+            .catch(error => {
+                console.log(error.response.data.error)
+            });
         },
         addSelectedCardToField: function(field){
             if(this.game_state.status != 'Running'){return}
@@ -323,6 +359,8 @@ let game = new Vue({
                 this.playCardFromHand(field);
             }else if(this.selected_location=='market' && this.game_state.stage =='Post Market Flip'){
                 this.playCardFromMarket(this.selected_card, field)
+            }else if(this.player_state.pending_cards){
+                this.playCardFromPending(field)
             }
             this.selected_card = ''
             this.update();
@@ -346,18 +384,32 @@ let game = new Vue({
             location.reload();
         },
         isClickable: function(location, param){
-            if (location == 'hand' && this.trade_selection_on == false && param != 0){return ''}
+            if (location == 'hand' && this.stade_stage == 0 && param != 0){return ''}
             if (location == 'field' && param == false){return ''}
             if (this.clickable_objects.includes(location)){
                 return 'clickable';
             }
             return ''
         },
-        enableTradeSelection: function(flag){
-            this.trade_selection_on = flag;
+        isSelected: function(card_id){
+            if(this.trade_selection_cards.includes(card_id) || this.selected_card == card_id){
+                return "selected"
+            }else{
+                return ""
+            }
+        },
+        cancelTrade: function(){
+            for(var i=0; i< this.trade_wants.length; i++){
+                this.trade_wants[i] = null;
+            }
+            this.trade_stage = 0;
+            this.trade_selection_cards = [];
+            this.current_trade_id = '';
+        },
+        continueTrade: function(){
+            this.trade_stage = 2;
         },
         hideLogin: function(){document.querySelector("#overlay").style.height=0}
-
     },
     mounted: function(){
         this.checkAccess();

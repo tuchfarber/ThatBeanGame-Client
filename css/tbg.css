@@ -49,17 +49,20 @@ html, body {
   margin: 0px;
   height: 100%;
   width: 100%;
-  height: 480px;
+  height: 540px;
   width: 960px; }
 
 body {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  font-size: 14px; }
+  font-size: 14px;
+  overflow: hidden; }
 
 #overlay {
   position: absolute;
+  top: 0;
+  left: 0;
   height: 100%;
   width: 100%;
   background-color: purple;
@@ -97,16 +100,55 @@ body {
       display: flex;
       justify-content: space-around; }
 
+#trade_overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center; }
+  #trade_overlay > div {
+    border-radius: 10px;
+    height: 90%;
+    width: 90%;
+    opacity: 0.8;
+    background-color: #eee; }
+    #trade_overlay > div h2 {
+      text-align: center;
+      font-size: 16px;
+      margin: 20px 0px; }
+    #trade_overlay > div .trade_wants {
+      display: flex;
+      flex-direction: column;
+      align-items: center; }
+      #trade_overlay > div .trade_wants .trade_want {
+        display: flex;
+        justify-content: space-around;
+        width: 300px;
+        border-radius: 5px;
+        margin: 10px 0px; }
+        #trade_overlay > div .trade_wants .trade_want input {
+          width: 100%;
+          -moz-appearance: textfield; }
+          #trade_overlay > div .trade_wants .trade_want input::-webkit-inner-spin-button {
+            -webkit-appearance: none; }
+
 #content {
-  height: 540px;
-  width: 960px;
   height: 100%;
   width: 100%;
   background-image: url("../assets/background.jpg");
   background-color: #eee;
-  background-size: contain; }
+  background-size: contain;
+  position: relative; }
   #content .clickable {
     border: 5px dotted #ffff00; }
+  #content .selected {
+    border: 5px solid #00ff00; }
+  #content .bold {
+    font-weight: bold; }
   #content .infobar {
     height: 30px;
     display: flex;
@@ -127,60 +169,70 @@ body {
     justify-content: space-between; }
     #content .board .players {
       height: 100%;
-      padding: 10px 20px;
-      box-sizing: border-box;
-      width: 150px;
+      padding: 0px 20px;
+      width: 160px;
       display: flex;
       flex-direction: column;
       justify-content: space-around; }
       #content .board .players .player {
         height: 80px;
-        width: 110px;
+        width: 160px;
         box-shadow: 0px 0px 5px;
         background-color: #ffff99;
         display: flex;
-        flex-direction: column;
-        justify-content: space-around; }
-        #content .board .players .player .their_name {
-          padding-left: 10px; }
-        #content .board .players .player .their_fields {
+        flex-direction: row; }
+        #content .board .players .player .info {
           display: flex;
-          justify-content: space-around; }
-          #content .board .players .player .their_fields .their_field {
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-            height: 25px;
-            width: 15px;
-            border: 1px solid black; }
-        #content .board .players .player .their_stats {
-          display: flex;
+          flex-direction: column;
           justify-content: space-around;
-          height: 20px; }
-          #content .board .players .player .their_stats .coin {
+          width: 110px; }
+          #content .board .players .player .info .their_name {
+            padding-left: 10px; }
+          #content .board .players .player .info .their_fields {
             display: flex;
-            align-items: center;
-            justify-content: space-around;
-            height: 100%;
-            width: 20px;
-            background-color: #F2CF59;
-            border: 1px solid #D9AB07;
-            border-radius: 10px; }
-          #content .board .players .player .their_stats .hand {
+            justify-content: space-around; }
+            #content .board .players .player .info .their_fields .their_field {
+              display: flex;
+              align-items: center;
+              justify-content: space-around;
+              height: 25px;
+              width: 15px;
+              border: 1px solid black; }
+          #content .board .players .player .info .their_stats {
             display: flex;
-            align-items: center;
             justify-content: space-around;
-            height: 100%;
-            width: 15px;
-            background-color: #ccc;
-            border: 1px solid black;
-            border-radius: 2px; }
-          #content .board .players .player .their_stats .host {
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-            height: 100%;
-            width: 20px; }
+            height: 20px; }
+            #content .board .players .player .info .their_stats .coin {
+              display: flex;
+              align-items: center;
+              justify-content: space-around;
+              height: 100%;
+              width: 20px;
+              background-color: #F2CF59;
+              border: 1px solid #D9AB07;
+              border-radius: 10px; }
+            #content .board .players .player .info .their_stats .hand {
+              display: flex;
+              align-items: center;
+              justify-content: space-around;
+              height: 100%;
+              width: 15px;
+              background-color: #ccc;
+              border: 1px solid black;
+              border-radius: 2px; }
+            #content .board .players .player .info .their_stats .host {
+              display: flex;
+              align-items: center;
+              justify-content: space-around;
+              height: 100%;
+              width: 20px; }
+        #content .board .players .player .trade_icon {
+          width: 50px;
+          border-left: 1px solid black;
+          border-right: 1px solid black;
+          background-color: #ccc; }
+          #content .board .players .player .trade_icon:hover {
+            cursor: pointer; }
     #content .board .playable_area {
       display: flex;
       flex-direction: column;
@@ -213,22 +265,47 @@ body {
           display: flex;
           align-items: center;
           justify-content: space-around; }
+        #content .board .playable_area .public_area .deck_area .instructions {
+          font-size: 14px;
+          color: #fff; }
       #content .board .playable_area .personal_area {
-        height: 50%;
+        height: 45%;
         width: 100%;
+        margin: 2.5% 0px;
         display: flex;
         align-items: center;
         justify-content: space-around; }
         #content .board .playable_area .personal_area .my_fields {
-          width: 300px;
-          height: 120px; }
+          width: 52%;
+          height: 100%; }
+          #content .board .playable_area .personal_area .my_fields .instructions {
+            display: block;
+            margin: 0px 20px; }
+            #content .board .playable_area .personal_area .my_fields .instructions div {
+              font-size: 18px;
+              color: #fff;
+              margin-bottom: 20px; }
         #content .board .playable_area .personal_area .game_stats {
           color: #ddd;
-          width: 160px;
-          height: 120px;
+          width: 25%;
+          height: 100%;
           background-color: rgba(0, 0, 0, 0.2); }
-          #content .board .playable_area .personal_area .game_stats button {
-            width: 100%; }
+          #content .board .playable_area .personal_area .game_stats .header {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 5px;
+            height: 28px; }
+          #content .board .playable_area .personal_area .game_stats .trades {
+            height: calc(100% - 33px);
+            overflow-y: auto; }
+            #content .board .playable_area .personal_area .game_stats .trades .trade_card {
+              margin-left: 5px; }
+            #content .board .playable_area .personal_area .game_stats .trades .trade_action {
+              display: inline-block;
+              margin-top: 5px;
+              text-decoration: underline; }
+              #content .board .playable_area .personal_area .game_stats .trades .trade_action:hover {
+                cursor: pointer; }
       #content .board .playable_area .stack_area {
         display: flex;
         justify-content: space-around;

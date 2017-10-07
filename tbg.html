@@ -31,6 +31,25 @@
                     
                 </div>
             </div>
+            <div id="trade_overlay" v-if="trade_stage == 1">
+                <div>
+                    <h2>Which cards do you want?</h2>
+                    <div class="trade_wants">
+                        <template v-for="(value, key) in trade_wants">
+                            <span class="trade_want" v-if="key==0 || trade_wants[key-1] != null">
+                                <select v-model="trade_wants[key]">
+                                    <option disabled value="">Select Card</option>
+                                    <option v-for="option in trade_want_options">{{option}}</option>
+                                </select>
+                            </span>
+                        </template>
+                        <span class="trade_want">
+                            <button v-on:click="continueTrade()">Continue</button>
+                            <button v-on:click="cancelTrade()">Cancel Trade</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
             <div class="infobar">
                 <span class="gameid">
                     {{game_state.game_id}} 
@@ -42,37 +61,51 @@
                     <button v-on:click="exitGame">Exit</button>
                 </span>
                 <span>{{game_state.current_player}}'s turn</span>
-                <span class="name">{{player_state.name}}</span>
+                <span class="name">{{player_state.name}} ({{player_state.coins}})</span>
             </div>
             <div class="board">
                 <div class="players">
                     <div class="player" v-for="player in game_state.players.slice(0,3)">
-                        <div class="their_name">{{player.name}}</div>
-                        <div class="their_fields">
-                            <div 
-                                :class="'enab-'+field.enabled + ' ' + field.name + ' their_field'"
-                                v-for="field in player.fields">
-                                {{field.count}}
+                        <div class="info">
+                            <div class="their_name">{{player.name}}</div>
+                            <div class="their_fields">
+                                <div 
+                                    :class="'enab-'+field.enabled + ' ' + field.name + ' their_field'"
+                                    v-for="field in player.fields">
+                                    {{field.count}}
+                                </div>
+                            </div>
+                            <div class="their_stats">
+                                <span class="coin">{{player.coins}}</span>
+                                <span class="hand">{{player.hand_count}}</span>
+                                <span class="host"><template v-if="player.is_host">H</template></span>
                             </div>
                         </div>
-                        <div class="their_stats">
-                            <span class="coin">{{player.coins}}</span>
-                            <span class="hand">{{player.hand_count}}</span>
-                            <span class="host"><template v-if="player.is_host">H</template></span>
+                        <div class="trade_icon">
+                            <img v-on:click="createTrade(player.name)" src="assets/trade.png">
                         </div>
                     </div>
                 </div>
                 <div class="playable_area">
                     <div class="public_area">
                         <div class="stack_area deck_area">
-                            <div class="card_stack deck" :class="isClickable('deck')" v-on:click="useDeck()">
-                                <span>{{game_state.deck_count}}</span>
-                                ({{prettyPlaythrough}})
-                            </div>
-                            <div class="card_stack discard">{{game_state.discard_count}}</div>
+                            <template v-if="trade_stage==0 && !player_state.pending_cards.length">
+                                <div class="card_stack deck" :class="isClickable('deck')" v-on:click="useDeck()">
+                                    <span>{{game_state.deck_count}}</span>
+                                    ({{prettyPlaythrough}})
+                                </div>
+                                <div class="card_stack discard">{{game_state.discard_count}}</div>
+                            </template>
+                            <template v-else>
+                                <span class="instructions">Place received cards in fields</span>
+                            </template>
                         </div>
                         <div class="stack_area market_area">
-                            <div class="card_stack" :class="isClickable('market')" v-on:click="selectCard('market', card)" v-for="card in game_state.market">
+                            <div class="card_stack" 
+                                :class="isClickable('market') + ' ' + isSelected(card.id)" 
+                                v-on:click="selectCard('market', card)"
+                                v-if="!player_state.pending_cards.length"
+                                v-for="card in game_state.market">
                                 <div class="name">{{card.name.slice(0, -5)}}</div>
                                 <img class="card_image" :src="card.img" />
                                 <img class="coins" src="assets/coins.png"/>
@@ -82,52 +115,91 @@
                     </div>
                     <div class="personal_area">
                         <div class="my_fields stack_area">
-                            <div class="my_field card_stack" 
-                                :class="isClickable('field', field.enabled)"
-                                v-on:click="addSelectedCardToField(index)"
-                                v-for="(field, index) in player_state.fields">
-                                <div v-if="field.enabled && field.count!=0">
-                                    <div class="name">{{field.name.slice(0, -5)}} ({{field.count}})</div>
-                                    <img class="card_image" :src="field.img" />
-                                    <img class="coins" src="assets/coins.png"/>
-                                    <div class="values"><span v-for="value in field.values">{{value}}</span></div>
+                            <template v-if="trade_stage==0">
+                                <div class="my_field card_stack" 
+                                    :class="isClickable('field', field.enabled)"
+                                    v-on:click="addSelectedCardToField(index)"
+                                    v-for="(field, index) in player_state.fields">
+                                    <div v-if="field.enabled && field.count!=0">
+                                        <div class="name">{{field.name.slice(0, -5)}} ({{field.count}})</div>
+                                        <img class="card_image" :src="field.img" />
+                                        <img class="coins" src="assets/coins.png"/>
+                                        <div class="values"><span v-for="value in field.values">{{value}}</span></div>
+                                    </div>
+                                    <div v-if="index==2 && field.enabled==false && player_state.coins >= 3">
+                                        <button v-on:click="buyThirdField()">Buy Field</button>
+                                    </div>
                                 </div>
-                                <div v-if="index==2 && field.enabled==false && player_state.coins >= 3">
-                                    <button v-on:click="buyThirdField()">Buy Field</button>
-                                </div>
+                            </template>
+                            <div class="instructions" v-if="trade_stage == 2">
+                                <div>Select the cards you would like to trade, then submit.</div>
+                                <button v-if="trade_stage == 2" v-on:click="submitTrade()">Submit Trade</button>
+                                <button v-if="trade_stage > 0" v-on:click="cancelTrade()">Cancel Trade</button>
                             </div>
                         </div>
                         <div class="game_stats">
-                            <button v-if="!trade_selection_on" v-on:click="enableTradeSelection(true)">Create Trade</button>
-                            <button v-if="trade_selection_on" v-on:click="submitTrade()">Submit Trade</button>
-                            <button v-if="trade_selection_on" v-on:click="enableTradeSelection(false)">Cancel Trade</button>
+                            <div class="header">Incoming Trades<hr></div>
+                            <div class="trades">
+                                <div class="trade" v-for="trade in game_state.trades" v-if="trade.player_2 == player_state.name">
+                                    <div><span class="bold">{{trade.player_1}}</span> offers:</div>
+                                    <div class="trade_card" v-for="trade_card_name in trade.p1_has">- {{trade_card_name}}</div>
+                                    <div>for</div>
+                                    <div class="trade_card" v-for="trade_card_name in trade.p1_wants">- {{trade_card_name}}</div>
+                                    <div>
+                                        <span class="trade_action" v-on:click="acceptTrade(trade.id)">Accept</span>
+                                        <span class="trade_action" v-on:click="rejectTrade(trade.id)">Reject</span>
+                                    </div>
+                                    <hr>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="players">
                     <div class="player" v-for="player in game_state.players.slice(3,6)">
-                        <div class="their_name">{{player.name}}</div>
-                        <div class="their_fields">
-                            <div class="their_field'"
-                                v-for="field in player.fields">
-                                {{field.count}}
-                            </div>
+                        <div class="trade_icon">
+                            <img v-on:click="createTrade(player.name)" src="assets/trade.png">
                         </div>
-                        <div class="their_stats">
-                            <span class="coin">{{player.coins}}</span>
-                            <span class="hand">{{player.hand_count}}</span>
-                            <span class="host"><template v-if="player.is_host">H</template></span>
+                        <div class="info">
+                            <div class="their_name">{{player.name}}</div>
+                            <div class="their_fields">
+                                <div class="their_field'"
+                                    v-for="field in player.fields">
+                                    {{field.count}}
+                                </div>
+                            </div>
+                            <div class="their_stats">
+                                <span class="coin">{{player.coins}}</span>
+                                <span class="hand">{{player.hand_count}}</span>
+                                <span class="host"><template v-if="player.is_host">H</template></span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="hand">
-                <div class="card" :class="isClickable('hand', index)" v-on:click="selectCard('hand', card)" v-for="(card, index) in player_state.hand">
-                    <div class="card_name">{{card.name}}</div>
-                    <img class="card_image" :src="card.img" />
-                    <img src="assets/coins.png"/>
-                    <div class="values"><span v-for="value in card.values">{{value}}</span></div>
-                </div>
+                <template v-if="!player_state.pending_cards.length">
+                    <div class="card" 
+                        :class="isClickable('hand', index) + ' ' + isSelected(card.id)" 
+                        v-on:click="selectCard('hand', card)" 
+                        v-for="(card, index) in player_state.hand">
+                        <div class="card_name">{{card.name}}</div>
+                        <img class="card_image" :src="card.img" />
+                        <img src="assets/coins.png"/>
+                        <div class="values"><span v-for="value in card.values">{{value}}</span></div>
+                    </div>
+                </template>
+                <template v-else>
+                    <div class="card clickable" 
+                        :class="isSelected(card.id)" 
+                        v-on:click="selectCard('hand', card)" 
+                        v-for="(card, index) in player_state.pending_cards">
+                        <div class="card_name">{{card.name}}</div>
+                        <img class="card_image" :src="card.img" />
+                        <img src="assets/coins.png"/>
+                        <div class="values"><span v-for="value in card.values">{{value}}</span></div>
+                    </div>
+                </template>
             </div>
         </div>
     </body>

@@ -64,15 +64,18 @@ html, body{
     margin:0px;
     height:100%;
     width:100%;
-    height:480px;
+    height:540px;
     width:960px;
 }
 body{
     @include flex_center;
     font-size:14px;
+    overflow:hidden;
 }
 #overlay{
-    position: absolute;
+    position:absolute;
+    top:0;
+    left:0;
     height:100%;
     width:100%;
     background-color:purple;
@@ -114,16 +117,63 @@ body{
         }
     }
 }
+#trade_overlay{
+    position:absolute;
+    top:0;
+    left:0;
+    height:100%;
+    width:100%;
+    background-color:rgba(0, 0, 0, 0.8);
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    &>div{
+        border-radius: 10px;
+        height:90%;
+        width:90%;
+        opacity: 0.8;
+        background-color:#eee;
+        h2{
+            text-align: center;
+            font-size: 16px;
+            margin:20px 0px;
+        }
+        .trade_wants{
+            display:flex;
+            flex-direction: column;
+            align-items: center;
+            .trade_want{
+                display:flex;
+                justify-content: space-around;
+                width:300px;
+                border-radius:5px;
+                margin:10px 0px;
+                input{
+                    width:100%;
+                    -moz-appearance: textfield;
+                    &::-webkit-inner-spin-button {
+                        -webkit-appearance: none;
+                    }
+                }
+            }  
+        }
+    }
+}
 #content{
-    height: 540px;
-    width: 960px;
     height:100%;
     width:100%;
     background-image: url('../assets/background.jpg');
     background-color: #eee;
     background-size: contain;
+    position:relative;
     .clickable{
         border: 5px dotted #ffff00;
+    }
+    .selected{
+        border: 5px solid #00ff00;
+    }
+    .bold{
+        font-weight:bold;
     }
     .infobar{
         height:30px;
@@ -150,59 +200,73 @@ body{
 
         .players{
             height:100%;
-            padding:10px 20px;
-            box-sizing:border-box;
-            width:150px;
+            padding:0px 20px;
+            width:160px;
             display:flex;
             flex-direction: column;
             justify-content: space-around;
             .player{
                 height:80px;
-                width:110px;
+                width:160px;
                 box-shadow: 0px 0px 5px;
                 background-color:#ffff99;
                 display:flex;
-                flex-direction: column;
-                justify-content: space-around;
-                .their_name{
-                    padding-left:10px;
-                }
-                .their_fields{
+                flex-direction:row;
+                .info{
                     display:flex;
-                    justify-content:space-around;
-                    .their_field{
-                        @include flex_center;
-                        height:25px;
-                        width:15px;
-                        border: 1px solid black;
+                    flex-direction: column;
+                    justify-content: space-around;
+                    width:110px;
+                    .their_name{
+                        padding-left:10px;
+                    }
+                    .their_fields{
+                        display:flex;
+                        justify-content:space-around;
+                        .their_field{
+                            @include flex_center;
+                            height:25px;
+                            width:15px;
+                            border: 1px solid black;
+                        }
+                    }
+                    .their_stats{
+                        display:flex;
+                        justify-content:space-around;
+                        height:20px;
+                        .coin{
+                            @include flex_center;
+                            height:100%;
+                            width:20px;
+                            background-color:#F2CF59;
+                            border:1px solid #D9AB07;
+                            border-radius: 10px;
+                        }
+                        .hand{
+                            @include flex_center;
+                            height:100%;
+                            width:15px;
+                            background-color:#ccc;
+                            border:1px solid black;
+                            border-radius: 2px;
+                        }
+                        .host{
+                            @include flex_center;
+                            height:100%;
+                            width:20px;
+                        }
                     }
                 }
-                .their_stats{
-                    display:flex;
-                    justify-content:space-around;
-                    height:20px;
-                    .coin{
-                        @include flex_center;
-                        height:100%;
-                        width:20px;
-                        background-color:#F2CF59;
-                        border:1px solid #D9AB07;
-                        border-radius: 10px;
-                    }
-                    .hand{
-                        @include flex_center;
-                        height:100%;
-                        width:15px;
-                        background-color:#ccc;
-                        border:1px solid black;
-                        border-radius: 2px;
-                    }
-                    .host{
-                        @include flex_center;
-                        height:100%;
-                        width:20px;
+                .trade_icon{
+                    width:50px;
+                    border-left:1px solid black;
+                    border-right:1px solid black;
+                    background-color:#ccc;
+                    &:hover{
+                        cursor:pointer;
                     }
                 }
+
             }
         }
         .playable_area{
@@ -237,25 +301,55 @@ body{
                         @include flex_center;
 
                     }
-                    .card_stack{
+                    .instructions{
+                        font-size: 14px;
+                        color: #fff;
                     }
                 }
             }
             .personal_area{
-                height:50%;
+                height:45%;
                 width:100%;
+                margin: 2.5% 0px;
                 @include flex_center;
                 .my_fields{
-                    width: 300px;
-                    height: 120px;
+                    width: 52%;
+                    height: 100%;
+                    .instructions{
+                        display:block;
+                        margin: 0px 20px;
+                        div{
+                            font-size: 18px;
+                            color: #fff;
+                            margin-bottom:20px;
+                        }
+                    }
                 }
                 .game_stats{
                     color:#ddd;
-                    width: 160px;
-                    height: 120px;
+                    width: 25%;
+                    height: 100%;
                     @include dark_backdrop;
-                    button{
-                        width:100%;
+                    .header{
+                        text-align:center;
+                        font-weight: bold;
+                        margin-top:5px;
+                        height: 28px
+                    }
+                    .trades{
+                        height:calc(100% - 33px);
+                        overflow-y: auto;
+                        .trade_card{
+                            margin-left:5px;
+                        }
+                        .trade_action{
+                            display:inline-block;
+                            margin-top:5px;
+                            text-decoration: underline;
+                            &:hover{
+                                cursor:pointer;
+                            }
+                        }
                     }
                 }
             }
