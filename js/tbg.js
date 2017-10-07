@@ -84,7 +84,7 @@ let game = new Vue({
             return host;
         },
         is_pending: function(){
-            return this.player_state.pending_cards.length == 0;
+            return this.player_state.pending_cards.length != 0;
         }
     },
     methods:{
