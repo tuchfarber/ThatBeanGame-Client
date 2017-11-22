@@ -408,7 +408,7 @@ let game = new Vue({
             token = ""
             document.cookie.split(';').forEach(
                 function(cookie){
-                    if(cookie.split('=')[0]=='tbg_token'){
+                    if(cookie.split('=')[0].trim()=='tbg_token'){
                         token = cookie.split('=')[1];
                     }
                 }
