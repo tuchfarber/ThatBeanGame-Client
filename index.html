@@ -186,6 +186,7 @@
                             <div class="their_name">{{player.name}}</div>
                             <div class="their_fields">
                                 <div class="their_field'"
+                                    :title="field.name"
                                     v-for="field in player.fields">
                                     {{field.count}}
                                 </div>
