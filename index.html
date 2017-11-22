@@ -86,6 +86,7 @@
                             <div class="their_fields">
                                 <div 
                                     :class="'enab-'+field.enabled + ' ' + field.name + ' their_field'"
+                                    :title="field.name"
                                     v-for="field in player.fields">
                                     {{field.count}}
                                 </div>
@@ -185,7 +186,8 @@
                         <div class="info">
                             <div class="their_name">{{player.name}}</div>
                             <div class="their_fields">
-                                <div class="their_field'"
+                                <div 
+                                    :class="'enab-'+field.enabled + ' ' + field.name + ' their_field'"
                                     :title="field.name"
                                     v-for="field in player.fields">
                                     {{field.count}}
